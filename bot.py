@@ -24,7 +24,7 @@ async def cog_loader(bot_instance):
     """This function loads all cogs in the cogs folder plus jishaku."""
     await bot_instance.load_extension('jishaku')
     for file in os.listdir('./cogs'):
-        if file.endswith('.py'):
+        if file.endswith('.py') and file != '__init__.py':
             cog_name = file[:-3]
             try:
                 await bot_instance.load_extension(f'cogs.{cog_name}')
