@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from sqlalchemy.exc import SQLAlchemyError
-from database.models import Logs, Session
+from database.makedb import Logs, Session
 
 class Owner(commands.Cog):
     """Cog for syncing commands with Discord"""
