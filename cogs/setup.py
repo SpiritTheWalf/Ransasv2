@@ -5,7 +5,7 @@ from discord.app_commands import command
 from discord.ext.commands import GroupCog
 
 from utils.checks import owner_or_permissions
-from database.models import Logs, Session  # Assuming you saved your model code in models.py
+from database.makedb import Logs, Session  # Assuming you saved your model code in models.py
 
 class Setup(GroupCog, group_name="setup"):
     def __init__(self, bot):
