@@ -4,14 +4,12 @@ import os
 import discord
 import aiohttp
 
-
 from aiohttp import ClientConnectionError
 from aiohttp.web_exceptions import HTTPUnauthorized
 from dotenv import load_dotenv
 from discord.ext.commands import GroupCog
 from discord.app_commands import command
 from discord.ext import commands
-
 
 load_dotenv()
 
