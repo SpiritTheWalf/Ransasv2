@@ -1,11 +1,13 @@
+"""File to make the database and tables"""
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, TIMESTAMP
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import declarative_base
 
 # Create the base class
 Base = declarative_base()
 
 # Define the Logs model
 class Logs(Base):
+    """Model for the logs table"""
     __tablename__ = 'logs'
 
     guild_id = Column(Integer, primary_key=True)
@@ -18,6 +20,7 @@ class Logs(Base):
 
 # Define the Punishments model
 class Punishments(Base):
+    """Model for the punishments table"""
     __tablename__ = 'punishments'
 
     id = Column(Integer, primary_key=True)
@@ -30,6 +33,7 @@ class Punishments(Base):
 
 # Define the CC model
 class CC(Base):
+    """Model for the custom commands table"""
     __tablename__ = 'cc'
 
     name = Column(String, primary_key=True)
@@ -41,6 +45,7 @@ class CC(Base):
 
 # Function to create the database
 def create_database():
+    """Create the database and tables"""
     engine = create_engine("sqlite:///database.db")
     Base.metadata.create_all(engine)
 
