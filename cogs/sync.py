@@ -21,7 +21,7 @@ class Owner(commands.Cog):
         await ctx.message.delete()
 
     @app_commands.command(name="addlog", description="Manually add a guild to the DB")
-    @commands.has_permissions(manage_guild=True)  # Ensure only admins can use this command
+    @commands.has_permissions(manage_guild=True)
     async def addlog(self, inter: discord.Interaction, guild_id: str):
         """Command to manually add a log entry to the database with only the guild ID."""
 
@@ -32,14 +32,12 @@ class Owner(commands.Cog):
                                               "or is not accessible.", ephemeral=True)
             return
 
-        # Check if a log entry already exists for this guild
         existing_entry = self.session.query(Logs).filter_by(guild_id=guild_id).first()
         if existing_entry:
             await inter.response.send_message(f"A log entry for guild ID {guild_id}"
                                                 "already exists.", ephemeral=True)
             return
 
-        # Create a new Logs object with the provided guild_id and other fields set to None
         new_log_entry = Logs(
             guild_id=guild_id,
             message_logs=None,
@@ -51,13 +49,12 @@ class Owner(commands.Cog):
         )
 
         try:
-            # Add the new entry to the session and commit
             self.session.add(new_log_entry)
             self.session.commit()
             await inter.response.send_message("Successfully added log"
             f"entry for guild ID {guild_id}.", ephemeral=True)
         except SQLAlchemyError as e:
-            self.session.rollback()  # Rollback in case of error
+            self.session.rollback()
             await inter.response.send_message(f"Failed to add log entry: {e}", ephemeral=True)
 
 async def setup(bot):

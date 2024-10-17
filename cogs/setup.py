@@ -4,7 +4,7 @@ from discord.app_commands import command
 from discord.ext.commands import GroupCog, ChannelNotFound
 
 from utils.checks import owner_or_permissions
-from database.makedb import Logs, Session  # Assuming you saved your model code in models.py
+from database.makedb import Logs, Session
 
 class Setup(GroupCog, group_name="setup"):
     """Cog to setup the logging channels and muterole for the bot."""

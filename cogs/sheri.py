@@ -59,7 +59,6 @@ async def fetch_from_api(endpoint, count):
                 messages = []
 
                 if endpoint == "videos":
-                    # Handle video messages as plain text
                     for video in data:
                         if isinstance(video, dict):
                             video_url = video.get("url")
@@ -73,12 +72,10 @@ async def fetch_from_api(endpoint, count):
                             direct_url_text = f"[🌐 Direct URL to video]({video_url})"
                             report_text = f"[Report to the Sheri Devs]({report_url})"
 
-                            # Construct plain text message
                             message_content = f"{direct_url_text}\n{artist_text}"
                             f"\n{report_text}\n{footer_text}"
                             messages.append(message_content)
                 else:
-                    # Handle non-video messages as embeds
                     invalid_items = []
                     for image in data:
                         if isinstance(image, dict):
@@ -93,7 +90,6 @@ async def fetch_from_api(endpoint, count):
                             direct_url_text = f"[🌐 Direct URL to image]({image_url})"
                             report_text = f"[Report to the Sheri Devs]({report_url})"
 
-                            # Construct embed
                             embed = discord.Embed(title=f"{endpoint}")
                             embed.set_image(url=image_url)
                             embed.add_field(name="", value=f"{direct_url_text}"
@@ -134,10 +130,8 @@ class Sheri(GroupCog, group_name="sheri", group_description="sheri related comma
             "please use this command in an NSFW channel", ephemeral=True)
             raise commands.NSFWChannelRequired(inter.channel)
 
-        # Fetch messages (either embeds or plain text)
         messages = await fetch_from_api(endpoint, count)
 
-        # Send each message (embed or plain text)
         for message in messages:
             if isinstance(message, discord.Embed):
                 await inter.response.send_message(embed=message)

@@ -2,10 +2,8 @@
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, TIMESTAMP
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Create the base class
 Base = declarative_base()
 
-# Define the Logs model
 class Logs(Base):
     """Model for the logs table"""
     __tablename__ = 'logs'
@@ -18,7 +16,6 @@ class Logs(Base):
     muterole = Column(Integer)
     muterole_channel = Column(Integer)
 
-# Define the Punishments model
 class Punishments(Base):
     """Model for the punishments table"""
     __tablename__ = 'punishments'
@@ -31,7 +28,6 @@ class Punishments(Base):
     punisher_id = Column(Integer)
     reason = Column(String)
 
-# Define the CC model
 class CC(Base):
     """Model for the custom commands table"""
     __tablename__ = 'cc'
@@ -43,16 +39,13 @@ class CC(Base):
     image = Column(String)
     nsfw = Column(Boolean, nullable=False)
 
-# Create the engine and session
 DATABASE_FILE = "database.db"
 engine = create_engine(f"sqlite:///{DATABASE_FILE}")
 Session = sessionmaker(bind=engine)
 
-# Function to create the database and tables
 def create_database():
     """Create the database and tables"""
     Base.metadata.create_all(engine)
 
-# Call the function to create the database and tables
 if __name__ == "__main__":
     create_database()
