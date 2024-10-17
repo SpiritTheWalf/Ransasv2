@@ -71,8 +71,8 @@ class CustomCommands(commands.Cog):
             self.session.add(new_command)
             self.session.commit()
 
-            await inter.response.send_message("@silent Custom "
-            f"command '{name}' added for {owner.mention}", ephemeral=True)
+            await inter.response.send_message("Custom "
+            f"command '{name}' added for {owner.mention}", ephemeral=True, silent=True)
         except NotSupportedError as e:
             traceback.print_exc()
             await inter.response.send_message(f"An error occurred!\n\n{e}", ephemeral=True)
