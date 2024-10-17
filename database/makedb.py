@@ -1,6 +1,6 @@
 """File to make the database and tables"""
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, TIMESTAMP
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 # Create the base class
 Base = declarative_base()
@@ -43,11 +43,16 @@ class CC(Base):
     image = Column(String)
     nsfw = Column(Boolean, nullable=False)
 
-# Function to create the database
+# Function to create the database and tables
 def create_database():
     """Create the database and tables"""
     engine = create_engine("sqlite:///database.db")
     Base.metadata.create_all(engine)
+
+# Create the engine and session
+DATABASE_FILE = "database.db"
+engine = create_engine(f"sqlite:///{DATABASE_FILE}")
+Session = sessionmaker(bind=engine)
 
 # Call the function to create the database and tables
 if __name__ == "__main__":
