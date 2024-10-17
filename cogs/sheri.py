@@ -1,32 +1,36 @@
-import discord
-import os
-import aiohttp
+"""Cog for fetching images and videos from the Sheri API"""
 import json
+import os
+import discord
+import aiohttp
 
+
+from aiohttp import ClientConnectionError
+from aiohttp.web_exceptions import HTTPUnauthorized
 from dotenv import load_dotenv
 from discord.ext.commands import GroupCog
 from discord.app_commands import command
 from discord.ext import commands
 
+
 load_dotenv()
 
-with open("utils/endpoints.json") as file:
-    data = json.load(file)
+with open("utils/endpoints.json", encoding="utf-8") as file:
+    endpoints = json.load(file)
 
-sfw_endpoints = data['SFW_ENDPOINTS']
-nsfw_endpoints = data['NSFW_ENDPOINTS']
+sfw_endpoints = endpoints['SFW_ENDPOINTS']
+nsfw_endpoints = endpoints['NSFW_ENDPOINTS']
 
 
-class InvalidEndpointError(Exception):
+class InvalidEndpointError(ValueError):
     """Error that is called if an invalid endpoint is passed"""
-    pass
 
 
-class UnauthorizedError(Exception):
+class UnauthorizedError(HTTPUnauthorized):
     """Error that is called if you do not have a valid API key"""
     def __init__(self, message="Unauthorized, please make sure your API key is correct"):
         self.message = message
-        super().__init__(self.message)
+        super().__init__(reason=message)
 
 
 headers = {"Authorization": f"Token {os.getenv('API_KEY')}",
@@ -34,15 +38,17 @@ headers = {"Authorization": f"Token {os.getenv('API_KEY')}",
 
 
 def extract_numbers(url):
+    """Extract numbers from a URL"""
     parts = url.rstrip("/").split("/")
     if parts[-1].isdigit():
         return parts[-1]
     return None
 
-
 async def fetch_from_api(endpoint, count):
+    """Fetch images or videos from the Sheri API"""
     async with aiohttp.ClientSession() as session:
-        async with session.get(url=f"https://sheri.bot/api/{endpoint}?count={count}", headers=headers) as response:
+        async with session.get(url=f"https://sheri.bot/api/{endpoint}?count={count}",
+                               headers=headers) as response:
             if response.status == 200:
                 data = await response.json()
 
@@ -70,7 +76,8 @@ async def fetch_from_api(endpoint, count):
                             report_text = f"[Report to the Sheri Devs]({report_url})"
 
                             # Construct plain text message
-                            message_content = f"{direct_url_text}\n{artist_text}\n{report_text}\n{footer_text}"
+                            message_content = f"{direct_url_text}\n{artist_text}"
+                            f"\n{report_text}\n{footer_text}"
                             messages.append(message_content)
                 else:
                     # Handle non-video messages as embeds
@@ -91,7 +98,8 @@ async def fetch_from_api(endpoint, count):
                             # Construct embed
                             embed = discord.Embed(title=f"{endpoint}")
                             embed.set_image(url=image_url)
-                            embed.add_field(name="", value=f"{direct_url_text}\n{artist_text}\n{report_text}")
+                            embed.add_field(name="", value=f"{direct_url_text}"
+                            f"\n{artist_text}\n{report_text}")
                             embed.set_footer(text=footer_text)
                             messages.append(embed)
                         else:
@@ -100,28 +108,32 @@ async def fetch_from_api(endpoint, count):
                 if messages:
                     return messages
                 elif invalid_items:
-                    raise Exception(f"Invalid items: {invalid_items}")
+                    raise ValueError(f"Invalid items: {invalid_items}")
                 else:
-                    raise Exception("No items found")
+                    raise ValueError("No items found")
 
             elif response.status == 401:
                 print(headers)
                 raise UnauthorizedError()
             else:
-                raise Exception(f"API request failed with status code {response.status}")
+                raise ClientConnectionError("API request failed with status code"
+                f"{response.status}")
 
 
 class Sheri(GroupCog, group_name="sheri", group_description="sheri related commands"):
+    """Cog for fetching images and videos from the Sheri API"""
     def __init__(self, bot):
         self.bot = bot
 
     @command(name="image", description="Get an image or video from the Sheri API")
     async def image(self, inter: discord.Interaction, endpoint: str, count: int = 1):
+        """Get an image or video from the Sheri API"""
         if endpoint not in sfw_endpoints and endpoint not in nsfw_endpoints:
             raise InvalidEndpointError
 
         if endpoint in nsfw_endpoints and not inter.channel.is_nsfw():
-            await inter.response.send_message("This is an NSFW endpoint, please use this command in an NSFW channel", ephemeral=True)
+            await inter.response.send_message("This is an NSFW endpoint,"
+            "please use this command in an NSFW channel", ephemeral=True)
             raise commands.NSFWChannelRequired(inter.channel)
 
         # Fetch messages (either embeds or plain text)
@@ -136,4 +148,5 @@ class Sheri(GroupCog, group_name="sheri", group_description="sheri related comma
 
 
 async def setup(bot):
+    """Setup the Sheri Cog"""
     await bot.add_cog(Sheri(bot))
