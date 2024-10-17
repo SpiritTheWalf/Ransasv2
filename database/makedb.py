@@ -43,16 +43,15 @@ class CC(Base):
     image = Column(String)
     nsfw = Column(Boolean, nullable=False)
 
-# Function to create the database and tables
-def create_database():
-    """Create the database and tables"""
-    engine = create_engine("sqlite:///database.db")
-    Base.metadata.create_all(engine)
-
 # Create the engine and session
 DATABASE_FILE = "database.db"
 engine = create_engine(f"sqlite:///{DATABASE_FILE}")
 Session = sessionmaker(bind=engine)
+
+# Function to create the database and tables
+def create_database():
+    """Create the database and tables"""
+    Base.metadata.create_all(engine)
 
 # Call the function to create the database and tables
 if __name__ == "__main__":
