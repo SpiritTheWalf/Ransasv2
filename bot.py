@@ -37,6 +37,8 @@ class RansasV2(commands.Bot):
     """This is the main bot class."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.STAGE = "Development"
+        self.VERSION = "0.0.31"
 
     async def setup_hook(self) -> None:
         """This function is called after the bot is ready."""
