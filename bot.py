@@ -20,7 +20,7 @@ intents.message_content = True
 intents.members = True
 
 
-async def cog_loader(bot_instance):
+async def cog_loader(bot_instance: commands.Bot) -> None:
     """This function loads all cogs in the cogs folder plus jishaku."""
     await bot_instance.load_extension('jishaku')
     for file in os.listdir('./cogs'):
@@ -37,8 +37,8 @@ class RansasV2(commands.Bot):
     """This is the main bot class."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.STAGE = "Development"
-        self.VERSION = "0.0.31"
+        self.stage = "Development"
+        self.version = "0.0.40"
 
     async def setup_hook(self) -> None:
         """This function is called after the bot is ready."""
