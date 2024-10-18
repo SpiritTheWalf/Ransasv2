@@ -1,4 +1,5 @@
 tag_blacklist = [
+    "-webm",
     "-child",
     "-flash",
     "-cub",
