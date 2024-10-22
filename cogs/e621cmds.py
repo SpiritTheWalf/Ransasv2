@@ -12,15 +12,16 @@ from discord.app_commands import command
 from discord.ui import View, Button
 from dotenv import load_dotenv
 from utils.blacklist import tag_blacklist
+from typing import Optional
 
 load_dotenv()
 
 
-def nsfw_check(tags, ctx):
+def nsfw_check(tags, inter: discord.Interaction):
     """Checks if the channel is NSFW and adds the appropriate tag"""
-    if not ctx.guild:
+    if not inter.guild:
         return tags + " -rating:safe"
-    if not ctx.channel.is_nsfw():
+    if not inter.channel.is_nsfw():
         tags += " rating:safe"
     else:
         return tags
@@ -37,9 +38,9 @@ async def close_callback(inter: discord.Interaction):
         return False
 
 @app_commands.allowed_contexts(guilds=True, dms=False)
-class E621cmds(GroupCog, group_name="e621", group_description="Get images from E621/E926"):
+class E621cmds(GroupCog):
     """Cog for E621 commands"""
-    def __init__(self, bot):
+    def __init__(self, bot: discord.ext.commands.Bot):
         self.bot = bot
         self.api = e6.E621(client_name="Ransas")
         self.tag_blacklist = tag_blacklist
@@ -47,7 +48,7 @@ class E621cmds(GroupCog, group_name="e621", group_description="Get images from E
         self.close_button = Button(label="Close", style=discord.ButtonStyle.danger, emoji="❌")
 
     @command(name="top", description="Gets the top posts from E621")
-    async def top(self, inter: discord.Interaction, tags: str = None):
+    async def top(self, inter: discord.Interaction, tags: Optional[str] = None):
         """Gets the top post from E621"""
         try:
             await inter.response.defer()
@@ -58,8 +59,9 @@ class E621cmds(GroupCog, group_name="e621", group_description="Get images from E
                 tags = tags.replace(", ", " ")
             tags += " order:score"
             tags = nsfw_check(tags, inter)
-            for tag in self.tag_blacklist:
-                tags += f" {tag}"
+            if tags is not None:
+                for tag in self.tag_blacklist:
+                    tags += f" {tag}"
             posts = self.api.posts.search(tags=tags, limit=1, page=1)
             if len(posts) == 0 or posts[0].file_obj is None:
                 await inter.followup.send("No posts found with those tags", ephemeral=True)
@@ -79,7 +81,7 @@ class E621cmds(GroupCog, group_name="e621", group_description="Get images from E
             traceback.print_exc()
 
     @command(name="random", description="Get a random post from e621")
-    async def random(self, inter: discord.Interaction, tags: str = None):
+    async def random(self, inter: discord.Interaction, tags: Optional[str] = None):
         """Gets a random post from E621"""
         async def r_callback(inter: discord.Interaction):
             """Callback for the again button"""
@@ -135,7 +137,7 @@ class E621cmds(GroupCog, group_name="e621", group_description="Get images from E
         await inter.followup.send(embed=embed, ephemeral=True, view=view)
 
     @command(name="gif", description="Get a random gif from e621")
-    async def gif(self, inter: discord.Interaction, tags: str = None):
+    async def gif(self, inter: discord.Interaction, tags: Optional[str] = None):
         """Gets a random gif from E621"""
         async def g_callback(inter: discord.Interaction):
             """Callback for the again button"""
@@ -194,6 +196,6 @@ class E621cmds(GroupCog, group_name="e621", group_description="Get images from E
         await inter.followup.send(embed=embed, ephemeral=True, view=view)
 
 
-async def setup(bot):
+async def setup(bot: discord.ext.commands.Bot):
     """Adds the cog to the bot"""
     await bot.add_cog(E621cmds(bot))

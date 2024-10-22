@@ -1,16 +1,17 @@
 """Info Cog"""
 import discord
+import sqlalchemy.orm
 from discord.ext import commands
 from discord import app_commands
 from discord.ext.commands import GroupCog
 from database.makedb import Logs, Session
 from utils.checks import owner_or_permissions
 
-class Info(GroupCog, group_name="info"):
+class Info(GroupCog):
     """The info Cog itself"""
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.session = Session()
+        self.session: sqlalchemy.orm.Session = Session()
 
     async def get_logging_channels(self, guild_id: int):
         """Get the logging channels for the guild"""
@@ -25,8 +26,8 @@ class Info(GroupCog, group_name="info"):
         log_entry = await self.get_logging_channels(guild_id)
 
         if log_entry and log_entry.message_logs:
-            channel_id = log_entry.message_logs
-            channel = await inter.guild.fetch_channel(channel_id)
+            channel_id: discord.channel.id = log_entry.message_logs
+            channel: discord.channel = await inter.guild.fetch_channel(channel_id)
             if channel:
                 await inter.response.send_message("The message logging "
                 f"channel is set to {channel.mention}", ephemeral=True)
@@ -41,7 +42,7 @@ class Info(GroupCog, group_name="info"):
     @commands.check(owner_or_permissions(manage_guild=True))
     async def memberlogs(self, inter: discord.Interaction):
         """Prints the member logging channel"""
-        guild_id = inter.guild.id
+        guild_id: discord.Guild.id = inter.guild.id
         log_entry = await self.get_logging_channels(guild_id)  # Added await
 
         if log_entry and log_entry.member_logs:
@@ -61,12 +62,12 @@ class Info(GroupCog, group_name="info"):
     @commands.check(owner_or_permissions(manage_guild=True))
     async def voicelogs(self, inter: discord.Interaction):
         """Prints the voice logging channel"""
-        guild_id = inter.guild.id
-        log_entry = await self.get_logging_channels(guild_id)  # Added await
+        guild_id: discord.Guild.id = inter.guild.id
+        log_entry = await self.get_logging_channels(guild_id)
 
         if log_entry and log_entry.voice_logs:
-            channel_id = log_entry.voice_logs
-            channel = inter.guild.get_channel(channel_id)
+            channel_id: discord.channel.id = log_entry.voice_logs
+            channel: discord.channel = inter.guild.get_channel(channel_id)
             if channel:
                 await inter.response.send_message("The voice logging "
                 f"channel is {channel.mention}.", ephemeral=True)
@@ -81,12 +82,12 @@ class Info(GroupCog, group_name="info"):
     @commands.check(owner_or_permissions(manage_guild=True))
     async def modlogs(self, inter: discord.Interaction):
         """Prints the moderation logging channel"""
-        guild_id = inter.guild.id
+        guild_id: discord.Guild.id = inter.guild.id
         log_entry = await self.get_logging_channels(guild_id)  # Added await
 
         if log_entry and log_entry.mod_logs:
-            channel_id = log_entry.mod_logs
-            channel = inter.guild.get_channel(channel_id)
+            channel_id: discord.channel.id = log_entry.mod_logs
+            channel: discord.channel = inter.guild.get_channel(channel_id)
             if channel:
                 await inter.response.send_message("The moderation logging "
                             f"channel is {channel.mention}.", ephemeral=True)
@@ -127,6 +128,6 @@ class Info(GroupCog, group_name="info"):
         await inter.response.send_message(embed=embed, ephemeral=True)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot):
     """Adds the Info cog to the bot"""
     await bot.add_cog(Info(bot))

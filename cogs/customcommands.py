@@ -2,6 +2,7 @@
 from datetime import datetime, timezone
 import traceback
 import discord
+import sqlalchemy.orm
 from discord.ext import commands
 from discord import app_commands
 from sqlalchemy.exc import NoResultFound, NotSupportedError
@@ -22,8 +23,8 @@ async def is_owner(interaction: discord.Interaction):
 class CustomCommands(commands.Cog):
     """Custom Commands Cog"""
     def __init__(self, bot):
-        self.bot = bot
-        self.session = Session()
+        self.bot: commands.Bot = bot
+        self.session: sqlalchemy.orm.session = Session()
 
     async def name_autocomplete(self, inter: discord.Interaction, current: str):
         """Provide autocomplete options for custom commands."""
@@ -42,10 +43,10 @@ class CustomCommands(commands.Cog):
     @app_commands.command(name="cc_add", description="Add a custom command to the database")
     @app_commands.check(is_owner)
     async def add(self, inter: discord.Interaction, name: str, owner: discord.Member,
-                  nsfw: bool, text: str, image: str = None):
+                  nsfw: bool, text: str, image: discord.Attachment = None):
         """Add a custom command to the database."""
         try:
-            owner_id = owner.id
+            owner_id: discord.Member.id = owner.id
             created_at = datetime.now(timezone.utc)
 
             existing_command = self.session.query(CustomCommand).filter_by(name=name).first()
@@ -167,6 +168,6 @@ class CustomCommands(commands.Cog):
         return await self.get_filtered_command_names(current, is_nsfw)
 
 
-async def setup(bot):
+async def setup(bot: discord.ext.commands.Bot):
     """Add the CustomCommands cog to the bot."""
     await bot.add_cog(CustomCommands(bot))

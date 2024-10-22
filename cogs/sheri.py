@@ -114,7 +114,7 @@ async def fetch_from_api(endpoint, count):
                 f"{response.status}")
 
 
-class Sheri(GroupCog, group_name="sheri", group_description="sheri related commands"):
+class Sheri(GroupCog):
     """Cog for fetching images and videos from the Sheri API"""
     def __init__(self, bot):
         self.bot = bot

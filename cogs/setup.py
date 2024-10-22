@@ -6,7 +6,7 @@ from discord.ext.commands import GroupCog, ChannelNotFound
 from utils.checks import owner_or_permissions
 from database.makedb import Logs, Session
 
-class Setup(GroupCog, group_name="setup"):
+class Setup(GroupCog):
     """Cog to setup the logging channels and muterole for the bot."""
     def __init__(self, bot):
         self.bot = bot

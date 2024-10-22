@@ -20,12 +20,12 @@ class LoggingCog(commands.Cog):
 
     async def send_join_leave_logging_embed(self, guild, action, member, reason=None):
         """Send a join/leave logging embed to the logging channel."""
-        guild_id = guild.id
+        guild_id: discord.Guild.id = guild.id
         log_entry = await self.get_logging_channels(guild_id)
 
         if log_entry:
-            channel_id = log_entry.member_logs
-            channel = guild.get_channel(channel_id)
+            channel_id: discord.channel.id = log_entry.member_logs
+            channel: discord.channel = guild.get_channel(channel_id)
             if channel:
                 embed = discord.Embed(
                     title=f"Member {action}",
@@ -52,13 +52,13 @@ class LoggingCog(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         """Send a join logging embed when a member joins the server."""
-        guild = member.guild
+        guild: discord.Guild = member.guild
         await self.send_join_leave_logging_embed(guild, "joined", member)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         """Send a leave logging embed when a member leaves the server."""
-        guild = member.guild
+        guild: discord.Guild = member.guild
         reason = None
 
         cutoff_time = datetime.now().replace(tzinfo=timezone.utc) - timedelta(seconds=30)
@@ -79,12 +79,12 @@ class LoggingCog(commands.Cog):
         if before.content == after.content:
             return
 
-        guild_id = before.guild.id
+        guild_id: discord.Guild.id = before.guild.id
         log_entry = await self.get_logging_channels(guild_id)
 
         if log_entry:
-            channel_id = log_entry.message_logs
-            channel = before.guild.get_channel(channel_id)
+            channel_id: discord.channel.id = log_entry.message_logs
+            channel: discord.channel = before.guild.get_channel(channel_id)
 
             if channel:
                 embed = discord.Embed(
@@ -109,12 +109,12 @@ class LoggingCog(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         """Send a voice channel logging embed when a member joins or leaves a voice channel."""
-        guild_id = member.guild.id
+        guild_id: discord.Guild.id = member.guild.id
         log_entry = await self.get_logging_channels(guild_id)
 
         if log_entry:
-            channel_id = log_entry.voice_logs
-            channel = member.guild.get_channel(channel_id)
+            channel_id: discord.channel.id = log_entry.voice_logs
+            channel: discord.channel = member.guild.get_channel(channel_id)
             if channel:
                 embed = discord.Embed(color=discord.Color.blurple())
                 embed.set_author(name=member.display_name, icon_url=member.avatar.url)
@@ -140,7 +140,7 @@ class LoggingCog(commands.Cog):
         """Send a message delete logging embed when a message is deleted."""
         if message.author.bot:
             return
-        guild_id = message.guild.id
+        guild_id: discord.Guild.id = message.guild.id
         log_entry = await self.get_logging_channels(guild_id)
 
         if log_entry:
@@ -159,6 +159,6 @@ class LoggingCog(commands.Cog):
                 await channel.send(embed=embed)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot):
     """Add the cog to the bot."""
     await bot.add_cog(LoggingCog(bot))
