@@ -4,6 +4,7 @@ import os
 import sys
 from typing import Optional
 import discord
+import sqlalchemy
 from discord.ext import commands
 from discord import app_commands
 from discord.ext.commands import ExtensionFailed, GuildNotFound
@@ -15,13 +16,13 @@ from database.makedb import Logs, Session
 
 class Owner(commands.Cog):
     """Owner commands"""
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.session = Session()
+        self.session: sqlalchemy.Session = Session()
 
     @commands.command(name="sync", hidden=True)
     @commands.check(is_owner)
-    async def sync(self, ctx):
+    async def sync(self, ctx: commands.context) -> None:
         """Command to sync the tree"""
         await ctx.bot.tree.sync()
         await ctx.send("Commands synced, you will need to reload Discord to see them")
@@ -29,7 +30,7 @@ class Owner(commands.Cog):
 
     @commands.command(name="list_cogs", hidden=True)
     @commands.check(is_owner)
-    async def list_cogs(self, ctx):
+    async def list_cogs(self, ctx: commands.context) -> None:
         """List all loaded cogs"""
         loaded_cogs = "\n".join(self.bot.cogs.keys())
         await ctx.send(f"Loaded Cogs:\n{loaded_cogs}")
@@ -37,7 +38,7 @@ class Owner(commands.Cog):
 
     @commands.command(name="say", hidden=True)
     @commands.check(is_owner)
-    async def say(self, ctx, *, message: Optional[str] = None):
+    async def say(self, ctx: commands.context, *, message: Optional[str] = None) -> None:
         """Make the bot say something"""
         attachments = ctx.message.attachments
         if message is None and not attachments:
@@ -58,7 +59,7 @@ class Owner(commands.Cog):
 
     @commands.command(name="amicute", hidden=True)
     @commands.check(owner_or_dev)
-    async def amicute(self, ctx, user: Optional[discord.Member] = None):
+    async def amicute(self, ctx: commands.context, user: Optional[discord.Member] = None) -> None:
         """Everyone is cute apart from SpiritTheWalf!!"""
         if user is None:
             user = ctx.author
@@ -76,7 +77,7 @@ class Owner(commands.Cog):
 
     @commands.command(name="dotstatus", hidden=True)
     @commands.check(is_owner)
-    async def dotstatus(self, ctx, *, status: str):
+    async def dotstatus(self, ctx: commands.context, *, status: discord.Status) -> None:
         """Change the bot's presence status"""
         status = status.lower()
         presence_status = {
@@ -96,7 +97,7 @@ class Owner(commands.Cog):
 
     @commands.command(name="nickname", hidden=True)
     @commands.check(is_owner)
-    async def nickname(self, ctx, *, new_nickname: str):
+    async def nickname(self, ctx: commands.context, *, new_nickname: str) -> None:
         """Change the bot's nickname"""
         for guild in self.bot.guilds:
             try:
@@ -110,7 +111,7 @@ class Owner(commands.Cog):
 
     @commands.command(name="status", hidden=True)
     @commands.check(is_owner)
-    async def status(self, ctx, new_status: Optional[str] = None):
+    async def status(self, ctx: commands.context, new_status: Optional[str] = None) -> None:
         """Change the bot's status"""
         if new_status is None:
             await self.bot.change_presence(activity=discord.Game(name=
@@ -122,10 +123,10 @@ class Owner(commands.Cog):
 
     @commands.command(name="glist", hidden=True)
     @commands.check(is_owner)
-    async def glist(self, ctx):
+    async def glist(self, ctx: commands.context) -> None:
         """List all guilds the bot is in"""
         guilds = self.bot.guilds
-        guild = ctx.guild
+        guild: discord.Guild = ctx.guild
         content = ""
         for guild in guilds:
             line = f"{guild.name} - ID: {guild.id}\n"
@@ -140,14 +141,14 @@ class Owner(commands.Cog):
 
     @commands.command(name="ginfo", hidden=True)
     @commands.check(is_owner)
-    async def ginfo(self, ctx, guild_id: Optional[int] = None):
+    async def ginfo(self, ctx: commands.context, guild_id: Optional[int] = None) -> None:
         """Get information about a guild"""
         if guild_id is None:
-            guild_id = ctx.guild.id
+            guild_id: discord.Guild.id  = ctx.guild.id
 
         guild = self.bot.get_guild(guild_id)
         if guild is not None:
-            owner = guild.owner
+            owner: discord.Guild.owner = guild.owner
             total_members = guild.member_count
             text_channels = len(guild.text_channels)
             voice_channels = len(guild.voice_channels)
@@ -173,7 +174,7 @@ class Owner(commands.Cog):
 
     @commands.command(name="senddm", hidden=True)
     @commands.has_permissions(kick_members=True, administrator=True)
-    async def senddm(self, ctx, user_id: int, *, message: str):
+    async def senddm(self, ctx: commands.context, user_id: discord.User.id, *, message: str) -> None:
         """Send a DM to a user"""
         user = self.bot.get_user(user_id)
         guild = ctx.guild
@@ -192,7 +193,7 @@ class Owner(commands.Cog):
 
     @commands.command(name='restart', hidden=True)
     @commands.check(is_owner)
-    async def restart(self, ctx):
+    async def restart(self, ctx: commands.context) -> None:
         """Restart the bot"""
         await ctx.send('Restarting...')
         await self.bot.http.close()
@@ -201,7 +202,7 @@ class Owner(commands.Cog):
 
     @commands.command(name="killswitch", hidden=True)
     @commands.check(is_owner)
-    async def killswitch(self, ctx, password: Optional[str] = None):
+    async def killswitch(self, ctx: commands.context, password: Optional[str] = None) -> None:
         """Stop the bot"""
         correct_password = "ThisIsAVerySecurePassword"
 
@@ -217,7 +218,7 @@ class Owner(commands.Cog):
 
     @commands.command(name="reload", hidden=True)
     @commands.check(is_owner)
-    async def reload(self, ctx, cog: str):
+    async def reload(self, ctx: commands.context, cog: commands.Cog) -> None:
         """Reload a cog"""
         message = await ctx.send(f"Reloading {cog}")
         try:
@@ -234,7 +235,7 @@ class Owner(commands.Cog):
 
     @app_commands.command(name="addlog", description="Manually add a guild to the DB")
     @commands.has_permissions(manage_guild=True)
-    async def addlog(self, inter: discord.Interaction, guild_id: str):
+    async def addlog(self, inter: discord.Interaction, guild_id: discord.Guild.id) -> None:
         """Command to manually add a log entry to the database with
                                 only the guild ID."""
 
@@ -270,6 +271,6 @@ class Owner(commands.Cog):
             await inter.response.send_message(f"Failed to add "
                                               f"log entry: {e}", ephemeral=True)
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
     """Setup function for Owner"""
     await bot.add_cog(Owner(bot))
