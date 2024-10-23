@@ -2,6 +2,29 @@ Rewrite all cogs
 docstrings for all
 linting
 ORM for db mgmt
-postgres rather than sqlite?
 Comments on code
-Use Sheri V4 as a guide/inspiration
+rewrite sync (usc?)
+
+NEED TO TYPEHINT owner.py!!!!!
+
+Cogs left to rewrite:
+
+Moderation
+owner
+rp
+
+Linting Pass:
+
+cogs.bot
+cogs.sheri --disable=W0104,R0914,R1705,R0901,R0912,R0915
+cogs.customcommands --disable=R0913,R0917
+cogs.e621cmds --disable=R1705
+cogs.info
+cogs.messagelogging
+cogs.owner
+
+
+utils.checks
+
+database.makedb --disable=R0903
+
